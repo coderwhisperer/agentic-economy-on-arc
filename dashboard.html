@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OracleMesh — live</title>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --panel: #11172a;
+    --line: #1f2740;
+    --ink: #e6ecff;
+    --dim: #6b7aa3;
+    --accent: #4ade80;
+    --warn: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 32px;
+    min-height: 100vh;
+  }
+  header { border-bottom: 1px solid var(--line); padding-bottom: 16px; margin-bottom: 24px; }
+  h1 { margin: 0; font-size: 22px; letter-spacing: 0.05em; }
+  .sub { color: var(--dim); font-size: 13px; margin-top: 4px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 20px;
+    border-radius: 4px;
+  }
+  .label { color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .value { font-size: 32px; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .accent { color: var(--accent); }
+  .warn { color: var(--warn); }
+  .panel-title { font-size: 13px; color: var(--dim); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .row {
+    display: grid;
+    grid-template-columns: 80px 1fr 200px 80px 30px;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 13px;
+    align-items: center;
+  }
+  .row:last-child { border-bottom: none; }
+  .ts { color: var(--dim); font-size: 11px; }
+  .task { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .model { color: var(--dim); font-size: 12px; }
+  .price { text-align: right; color: var(--accent); }
+  .ok { color: var(--accent); }
+  .err { color: #ef4444; }
+  .models { display: grid; grid-template-columns: 1fr 80px 100px; gap: 8px; font-size: 13px; padding: 6px 0; }
+  .bar { height: 4px; background: var(--accent); border-radius: 2px; }
+  .footer { color: var(--dim); font-size: 11px; margin-top: 24px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ORACLEMESH ▸ live</h1>
+  <div class="sub">pay-per-inference router · arc testnet · circle nanopayments</div>
+</header>
+
+<div class="grid">
+  <div class="card">
+    <div class="label">total calls</div>
+    <div class="value" id="total">0</div>
+  </div>
+  <div class="card">
+    <div class="label">usdc collected</div>
+    <div class="value accent" id="usdc">$0.000000</div>
+  </div>
+  <div class="card">
+    <div class="label">avg price / call</div>
+    <div class="value" id="avg">$0.000000</div>
+  </div>
+  <div class="card">
+    <div class="label">eth-l1 gas avoided</div>
+    <div class="value warn" id="saved">$0.00</div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+  <div class="panel-title">routes by model</div>
+  <div id="byModel"></div>
+</div>
+
+<div class="card">
+  <div class="panel-title">recent calls</div>
+  <div id="recent"></div>
+</div>
+
+<div class="footer">
+  refresh interval 1s · server <span id="srv"></span>
+</div>
+
+<script>
+  // Default to the page's own origin so the dashboard works behind tunnels
+  // (Cloudflare, ngrok, etc.) where the browser's "localhost" is the user's
+  // machine, not the server's. Override with ?s=https://other-host
+  const SRV = new URLSearchParams(location.search).get('s') ||
+              (window.location.origin.startsWith('http') ? window.location.origin : 'http://localhost:3000');
+  document.getElementById('srv').textContent = SRV;
+
+  function fmtUsd(n) { return '$' + n.toFixed(6); }
+  function ago(ts) {
+    const s = Math.floor((Date.now() - ts) / 1000);
+    if (s < 60) return s + 's ago';
+    return Math.floor(s / 60) + 'm ago';
+  }
+
+  async function tick() {
+    try {
+      const r = await fetch(SRV + '/stats');
+      const s = await r.json();
+      document.getElementById('total').textContent = s.totalCalls;
+      document.getElementById('usdc').textContent = fmtUsd(s.totalUsdc);
+      const avg = s.totalCalls ? s.totalUsdc / s.totalCalls : 0;
+      document.getElementById('avg').textContent = fmtUsd(avg);
+      document.getElementById('saved').textContent = '$' + (s.totalCalls * 0.20).toFixed(2);
+
+      // by model
+      const byModel = Object.entries(s.byModel).sort((a, b) => b[1].calls - a[1].calls);
+      const max = byModel[0]?.[1].calls || 1;
+      document.getElementById('byModel').innerHTML = byModel.map(([m, d]) => `
+        <div class="models">
+          <div>${m.split('/').slice(-1)[0]}</div>
+          <div style="text-align:right">${d.calls}</div>
+          <div class="price">${fmtUsd(d.usdc)}</div>
+        </div>
+        <div class="bar" style="width: ${(d.calls / max * 100).toFixed(0)}%; margin-bottom: 8px;"></div>
+      `).join('');
+
+      // recent
+      document.getElementById('recent').innerHTML = s.recent.map(r => `
+        <div class="row">
+          <div class="ts">${ago(r.ts)}</div>
+          <div class="task">${r.task}</div>
+          <div class="model">${r.model.split('/').slice(-1)[0]}</div>
+          <div class="price">${fmtUsd(r.priceUsd)}</div>
+          <div class="${r.ok ? 'ok' : 'err'}">${r.ok ? '✓' : '✗'}</div>
+        </div>
+      `).join('') || '<div style="color: var(--dim); padding: 20px 0;">no calls yet — run npm run burst</div>';
+    } catch (e) {
+      // server probably not up yet — keep retrying
+    }
+  }
+
+  tick();
+  setInterval(tick, 1000);
+</script>
+</body>
+</html>

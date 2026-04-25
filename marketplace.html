@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OracleMesh ▸ pay-per-answer marketplace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0c0a;
+    --bg-2: #161410;
+    --bg-3: #1f1c17;
+    --line: #2a2620;
+    --ink: #eee6d6;
+    --dim: #847a66;
+    --dimmer: #4a4538;
+    --amber: #e3a556;
+    --green: #8fc269;
+    --red: #d4604a;
+    --paper: #f5ebd4;
+    --paper-ink: #1a1612;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.008) 0px, rgba(255,255,255,0.008) 1px, transparent 1px, transparent 3px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  main { position: relative; z-index: 1; max-width: 1160px; margin: 0 auto; padding: 48px 32px; }
+
+  /* ── Masthead ───────────────────────── */
+  header { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 40px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; }
+  .masthead-l h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: clamp(44px, 7vw, 84px);
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    font-variation-settings: "opsz" 144;
+  }
+  .masthead-l h1 em {
+    font-style: italic;
+    color: var(--amber);
+    font-weight: 400;
+  }
+  .masthead-l .tag {
+    color: var(--dim);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-top: 12px;
+  }
+  .masthead-r {
+    text-align: right;
+    font-size: 11px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+  .masthead-r .live {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* ── Wallet status strip ────────────── */
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--line);
+    background: var(--bg-2);
+    margin-bottom: 40px;
+  }
+  .strip > div {
+    padding: 16px 20px;
+    border-right: 1px solid var(--line);
+  }
+  .strip > div:last-child { border-right: none; }
+  .strip .k {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--dim);
+    letter-spacing: 0.2em;
+  }
+  .strip .v {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .strip .v.amber { color: var(--amber); }
+  .strip .v.green { color: var(--green); }
+  .strip .v.small { font-size: 13px; font-family: 'IBM Plex Mono', monospace; letter-spacing: -0.02em; word-break: break-all; }
+
+  /* ── Product shelves ────────────────── */
+  .section-hd {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    align-items: baseline;
+    margin-bottom: 20px;
+  }
+  .section-hd h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+  }
+  .section-hd .rule { height: 1px; background: var(--line); }
+  .shelf {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 0;
+    border: 1px solid var(--line);
+    margin-bottom: 56px;
+  }
+  .product {
+    padding: 28px;
+    border-right: 1px solid var(--line);
+    background: var(--bg-2);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    transition: background 0.2s;
+  }
+  .product:last-child { border-right: none; }
+  .product:hover { background: var(--bg-3); }
+  /* "Ask anything" — single-card layout for the metered chat */
+  .ask-chat {
+    border: 1px solid var(--line);
+    background: var(--bg-2);
+    padding: 32px;
+    margin-bottom: 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .ask-chat .cat { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--amber); }
+  .ask-chat h3 { font-family: 'Fraunces', serif; font-weight: 400; font-size: 28px; line-height: 1.2; }
+  .ask-chat .blurb { color: var(--dim); font-size: 13px; line-height: 1.6; max-width: 720px; }
+  .ask-chat textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 14px 16px;
+    resize: vertical;
+    min-height: 96px;
+  }
+  .ask-chat textarea:focus { outline: none; border-color: var(--amber); }
+  .ask-chat .btn-row { grid-template-columns: 200px 200px; }
+  .product .cat {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--amber);
+  }
+  .product h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 1.2;
+  }
+  .product .blurb {
+    color: var(--dim);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .product textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 10px 12px;
+    resize: vertical;
+    min-height: 68px;
+  }
+  .product textarea:focus {
+    outline: none;
+    border-color: var(--amber);
+  }
+  .quote-line {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding-top: 12px;
+    border-top: 1px dashed var(--line);
+    min-height: 28px;
+  }
+  .quote-line .price {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    color: var(--amber);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    padding: 11px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  button:hover:not(:disabled) { border-color: var(--ink); }
+  button.primary {
+    background: var(--amber);
+    border-color: var(--amber);
+    color: var(--bg);
+    font-weight: 500;
+  }
+  button.primary:hover:not(:disabled) { background: var(--paper); border-color: var(--paper); }
+  button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* ── Answer/receipt panel ──────────────────── */
+  .receipt {
+    background: var(--paper);
+    color: var(--paper-ink);
+    margin-top: 12px;
+    padding: 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    display: none;
+    border: 1px solid var(--paper);
+    position: relative;
+  }
+  .receipt.show { display: block; animation: unfurl 0.3s ease-out; }
+  @keyframes unfurl { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  .receipt::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: repeating-linear-gradient(90deg, var(--paper-ink) 0, var(--paper-ink) 4px, transparent 4px, transparent 8px);
+  }
+  .receipt h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #5a4a30;
+    margin-bottom: 10px;
+  }
+  .receipt .rr {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 8px;
+    padding: 3px 0;
+    font-size: 11px;
+  }
+  .receipt .rr span:first-child {
+    color: #8a7355;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .receipt .answer-body {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed #b8a575;
+    white-space: pre-wrap;
+    font-size: 13px;
+    color: var(--paper-ink);
+  }
+  .status {
+    font-size: 11px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    min-height: 16px;
+    margin-top: 4px;
+  }
+  .status.err { color: var(--red); }
+  .status.ok { color: var(--green); }
+
+  /* ── Footer economics ─────────────── */
+  .economics {
+    border: 1px solid var(--line);
+    background: var(--bg-2);
+    padding: 32px;
+    margin-top: 56px;
+  }
+  .economics h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  .econ-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    font-size: 12px;
+  }
+  .econ-cell { padding: 16px; background: var(--bg); border: 1px solid var(--line); }
+  .econ-cell .lbl { color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em; font-size: 10px; }
+  .econ-cell .big { font-family: 'Fraunces', serif; font-size: 26px; margin: 6px 0; }
+  .econ-cell.good .big { color: var(--green); }
+  .econ-cell.bad .big { color: var(--red); }
+  .econ-cell .note { color: var(--dim); font-size: 11px; line-height: 1.5; }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    color: var(--dim);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  @media (max-width: 720px) {
+    main { padding: 28px 16px; }
+    .strip { grid-template-columns: 1fr 1fr; }
+    .strip > div:nth-child(2) { border-right: none; }
+    .strip > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+    .econ-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="masthead-l">
+    <h1>Oracle<em>Mesh.</em></h1>
+    <div class="tag">&mdash; pay-per-answer, per interaction, settled on arc</div>
+  </div>
+  <div class="masthead-r">
+    <div><span class="live"></span>live · arc testnet</div>
+    <div style="margin-top: 6px;">usdc is gas</div>
+  </div>
+</header>
+
+<div class="strip">
+  <div>
+    <div class="k">wallet</div>
+    <div class="v small" id="walletAddr">— not connected —</div>
+  </div>
+  <div>
+    <div class="k">usdc (wallet)</div>
+    <div class="v amber" id="walletBal">—</div>
+  </div>
+  <div>
+    <div class="k">usdc (gateway)</div>
+    <div class="v green" id="gatewayBal">—</div>
+  </div>
+  <div>
+    <div class="k">status</div>
+    <div class="v small" id="walletStatus">awaiting connect</div>
+  </div>
+</div>
+
+<div class="section-hd">
+  <h2>The shelf</h2><div class="rule"></div>
+</div>
+
+<div class="shelf">
+  <!-- PRODUCT 1: ask a doctor -->
+  <div class="product">
+    <div class="cat">medical · openbiollm 8b</div>
+    <h3>Ask a specialist</h3>
+    <div class="blurb">Clinical Q&amp;A routed to a biomedical-tuned model. Drug interactions, dosing references, mechanism lookups. Not medical advice.</div>
+    <textarea id="q-medical" placeholder="e.g. What are common contraindications for metformin?">What are common contraindications for metformin?</textarea>
+    <div class="quote-line">
+      <div><span id="qt-medical">tap get quote</span></div>
+      <div class="price" id="qp-medical">—</div>
+    </div>
+    <div class="btn-row">
+      <button onclick="getQuote('medical')">Quote</button>
+      <button class="primary" id="buy-medical" onclick="buy('medical')" disabled>Pay &amp; get answer</button>
+    </div>
+    <div class="status" id="s-medical"></div>
+    <div class="receipt" id="r-medical"></div>
+  </div>
+
+  <!-- PRODUCT 2: translation -->
+  <div class="product">
+    <div class="cat">multilingual · aya 8b</div>
+    <h3>Translate anything</h3>
+    <div class="blurb">23-language coverage, nuanced idiomatic translation. Business contracts, customer support, travel phrases.</div>
+    <textarea id="q-translate" placeholder="e.g. Translate to Japanese: 'The meeting has been postponed.'">Translate to Japanese: "The meeting has been postponed."</textarea>
+    <div class="quote-line">
+      <div><span id="qt-translate">tap get quote</span></div>
+      <div class="price" id="qp-translate">—</div>
+    </div>
+    <div class="btn-row">
+      <button onclick="getQuote('translate')">Quote</button>
+      <button class="primary" id="buy-translate" onclick="buy('translate')" disabled>Pay &amp; get answer</button>
+    </div>
+    <div class="status" id="s-translate"></div>
+    <div class="receipt" id="r-translate"></div>
+  </div>
+
+  <!-- PRODUCT 3: code help -->
+  <div class="product">
+    <div class="cat">code · qwen coder 7b</div>
+    <h3>Fix my code</h3>
+    <div class="blurb">Debugging, snippets, regex, small algorithms. Routed to a coding specialist — 1/10th the cost of a general model.</div>
+    <textarea id="q-code" placeholder="e.g. Regex to match hex colors in CSS, 3 or 6 digits">Write a regex to match hex colors in CSS (3 or 6 digits)</textarea>
+    <div class="quote-line">
+      <div><span id="qt-code">tap get quote</span></div>
+      <div class="price" id="qp-code">—</div>
+    </div>
+    <div class="btn-row">
+      <button onclick="getQuote('code')">Quote</button>
+      <button class="primary" id="buy-code" onclick="buy('code')" disabled>Pay &amp; get answer</button>
+    </div>
+    <div class="status" id="s-code"></div>
+    <div class="receipt" id="r-code"></div>
+  </div>
+</div>
+
+<div class="section-hd">
+  <h2>Ask anything · usage-based</h2><div class="rule"></div>
+</div>
+
+<div class="ask-chat">
+  <div class="cat">chat · /infer/metered · per-call dynamic price</div>
+  <h3>You pay for what your prompt actually demands.</h3>
+  <div class="blurb">
+    Different from the three shelf cards above (flat $0.0095 per inference). Here, Gemini routes your prompt and the price tracks the model + estimated tokens. Tiny ask → tiny charge. Big ask → bigger charge. Same on-chain settlement on Arc via Circle's batched x402 facilitator.
+  </div>
+  <textarea id="q-chat" placeholder="Ask anything…">In two sentences, what's the difference between TCP and UDP?</textarea>
+  <div class="quote-line">
+    <div><span id="qt-chat">tap quote — Gemini will pick a specialist and price this call</span></div>
+    <div class="price" id="qp-chat">—</div>
+  </div>
+  <div class="btn-row">
+    <button onclick="getQuote('chat', 'metered')">Quote</button>
+    <button class="primary" id="buy-chat" onclick="buy('chat', '/buy-metered')" disabled>Pay &amp; get answer</button>
+  </div>
+  <div class="status" id="s-chat"></div>
+  <div class="receipt" id="r-chat"></div>
+</div>
+
+<div class="section-hd">
+  <h2>Why this works</h2><div class="rule"></div>
+</div>
+
+<div class="economics">
+  <h3>Unit economics — the same $0.003 inference, three ways to settle it.</h3>
+  <div class="econ-grid">
+    <div class="econ-cell bad">
+      <div class="lbl">card processor</div>
+      <div class="big">−$0.30</div>
+      <div class="note">Stripe's minimum fee is $0.30 + 2.9%. A 3-cent inference is mathematically dead. You'd need a subscription wrapper, which is the opposite of per-interaction.</div>
+    </div>
+    <div class="econ-cell bad">
+      <div class="lbl">ethereum l1, per-call</div>
+      <div class="big">−$0.20</div>
+      <div class="note">Gas for one ERC-20 transfer dwarfs the entire revenue of the call. You lose 60× your price tag on gas alone, every time.</div>
+    </div>
+    <div class="econ-cell good">
+      <div class="lbl">arc + circle nanopayments</div>
+      <div class="big">+$0.0029</div>
+      <div class="note">Gasless to the buyer, batched settlement absorbed at Circle's layer. The full price goes to the seller. This is the ONLY rail that makes the product exist.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div>oraclemesh · featherless × gemini × circle arc · nanopayments</div>
+  <div><a style="color: var(--dim); text-decoration: none; border-bottom: 1px dotted var(--dim);" href="https://testnet.arcscan.app" target="_blank">arcscan ↗</a></div>
+</footer>
+
+</main>
+
+<script>
+// ─── Settings ─────────────────────────────────────────────────
+const SERVER = window.location.origin.startsWith("http") ? window.location.origin : "http://localhost:3000";
+
+// Map product keys → textarea IDs and pre-quote state.
+const PRODUCTS = ["medical", "translate", "code"];
+const quoteCache = {}; // { medical: { priceUsd, modelDisplay } }
+let walletReady = false;
+
+// ─── Wallet connection ───────────────────────────────────────
+// This page ASSUMES the buyer already has a Gateway balance set up via
+// `npm run setup`. We query the server's /wallet-info endpoint (if present)
+// or fall back to a display that reflects last-known balances.
+//
+// For the demo we DON'T do in-browser key management — too risky and outside
+// the hackathon scope. Instead the browser sends tasks to our local server,
+// which uses its own GatewayClient (loaded via .env) to sign and pay.
+// That keeps keys on the dev machine, not in the browser.
+//
+// To make this work, the SERVER exposes a /buy helper that runs the pay()
+// loop. We add that endpoint alongside /infer and /infer/metered.
+async function refreshWalletStrip() {
+  try {
+    const r = await fetch(SERVER + "/wallet-info");
+    if (!r.ok) throw 0;
+    const w = await r.json();
+    document.getElementById("walletAddr").textContent = w.address.slice(0, 10) + "…" + w.address.slice(-4);
+    document.getElementById("walletBal").textContent = "$" + (+w.walletUsdc).toFixed(4);
+    document.getElementById("gatewayBal").textContent = "$" + (+w.gatewayUsdc).toFixed(4);
+    document.getElementById("walletStatus").textContent = "ready";
+    document.getElementById("walletStatus").className = "v small";
+    walletReady = true;
+    // enable all buy buttons that already have a quote
+    PRODUCTS.forEach(p => {
+      if (quoteCache[p]) document.getElementById("buy-" + p).disabled = false;
+    });
+  } catch {
+    document.getElementById("walletStatus").textContent = "server not reachable";
+    document.getElementById("walletStatus").className = "v small";
+  }
+}
+
+// `mode` is "flat" (default — uses q.priceUsd, the per-tier flat ceiling)
+// or "metered" (uses q.meteredPriceUsd — the per-token estimate that
+// matches what /infer/metered actually charges).
+async function getQuote(kind, mode = "flat") {
+  const task = document.getElementById("q-" + kind).value.trim();
+  if (!task) return;
+  const qt = document.getElementById("qt-" + kind);
+  const qp = document.getElementById("qp-" + kind);
+  const s = document.getElementById("s-" + kind);
+  s.textContent = "routing…"; s.className = "status";
+  try {
+    const r = await fetch(SERVER + "/quote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task }),
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || "quote failed");
+    const q = j.quote;
+    quoteCache[kind] = q;
+    const priceShown = mode === "metered" ? q.meteredPriceUsd : q.priceUsd;
+    qt.textContent = `${q.display} · ${q.category}/${q.complexity}`;
+    qp.textContent = "$" + Number(priceShown).toFixed(6);
+    s.textContent = q.reasoning; s.className = "status ok";
+    if (walletReady) document.getElementById("buy-" + kind).disabled = false;
+  } catch (err) {
+    s.textContent = err.message; s.className = "status err";
+  }
+}
+
+// `endpoint` is "/buy" (default — flat /infer ceiling) or "/buy-metered"
+// (per-call dynamic /infer/metered).
+async function buy(kind, endpoint = "/buy") {
+  const task = document.getElementById("q-" + kind).value.trim();
+  if (!task) return;
+  const btn = document.getElementById("buy-" + kind);
+  const s = document.getElementById("s-" + kind);
+  const r = document.getElementById("r-" + kind);
+  btn.disabled = true;
+  s.textContent = "signing authorization…"; s.className = "status";
+
+  try {
+    const resp = await fetch(SERVER + endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task }),
+    });
+    const j = await resp.json();
+    if (!resp.ok) throw new Error(j.error || "purchase failed");
+
+    r.classList.add("show");
+    r.innerHTML = `
+      <h4>Receipt · paid on Arc testnet</h4>
+      <div class="rr"><span>model</span><span>${escapeHtml(j.routing.display)}</span></div>
+      <div class="rr"><span>category</span><span>${escapeHtml(j.routing.category)} · ${escapeHtml(j.routing.complexity)}</span></div>
+      <div class="rr"><span>paid</span><span>$${j.payment.amountUsd.toFixed(6)} USDC</span></div>
+      <div class="rr"><span>to</span><span style="font-size:10px">${escapeHtml(j.payment.seller)}</span></div>
+      <div class="rr"><span>network</span><span>${escapeHtml(j.payment.network)}</span></div>
+      <div class="answer-body">${escapeHtml(j.answer)}</div>
+    `;
+    s.textContent = "settled"; s.className = "status ok";
+    refreshWalletStrip();
+  } catch (err) {
+    s.textContent = err.message; s.className = "status err";
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+
+// Boot
+refreshWalletStrip();
+setInterval(refreshWalletStrip, 15000);
+</script>
+</body>
+</html>

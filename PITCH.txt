@@ -1,0 +1,45 @@
+# Pitch + Feedback
+
+## 90-second demo video script
+
+> **(0-10s) Hook.** "General-purpose LLMs charge you for capabilities you don't use. A coding question doesn't need a 405-billion-parameter reasoning model — a 7-billion specialist will answer it for one one-hundredth of the cost. We built OracleMesh to bill for that."
+
+> **(10-25s) Show /quote.** Hit the API with three different prompts — a Python regex, a clinical drug-interaction question, and a French translation. Show the JSON response: each one routes to a different specialist Featherless model, each one quotes a price under one cent in USDC.
+
+> **(25-45s) Show how routing works.** Open `router.ts` for two seconds. "Gemini 3 Flash with Function Calling. The schema forces a structured routing decision — category, model, price. No free-text guessing."
+
+> **(45-65s) Run the burst.** `npm run burst`. "100 paid inferences. Each one settles via Circle Nanopayments on Arc testnet — gasless x402, batched on-chain." Show the live counter ticking. Show the Arc testnet explorer with the seller address receiving USDC.
+
+> **(65-85s) The slide.** Show the margin table. "$0.003 per inference settled per-call on Ethereum L1 would cost twenty cents in gas — every call loses you nineteen-and-a-half cents. Same call on Arc with Nanopayments: gas is effectively zero, you net the full amount. **This product is impossible without Circle's stack.**"
+
+> **(85-90s) Close.** "OracleMesh. Specialist models, sub-cent pricing, machine-payable. Built for the agentic economy that's actually here."
+
+## Feedback (for the $500 feedback prize)
+
+> Below is feedback structured as Circle asked: detailed, builder-perspective, specific to what we hit while building.
+
+### What worked exceptionally well
+
+The `@circle-fin/x402-batching` SDK is the single best piece of payments tooling we've ever integrated. Going from "I have an Express endpoint" to "this endpoint is gated behind a per-request USDC payment" is genuinely one line: `gateway.require("$0.01")`. That's the right level of abstraction. It hides the EIP-3009 signature dance, the facilitator round-trip, the network ID juggling — but doesn't hide the *concept*, so when we needed dynamic per-request pricing (our router decides the price after seeing the task), dropping down to `BatchFacilitatorClient.settle()` directly was a 15-minute change. Two-tier API design done right.
+
+The Arc testnet faucet → Gateway deposit → first paid call loop took us about 40 minutes from a cold start. By blockchain standards that's miraculous.
+
+USDC-as-gas is a quietly transformative design choice for developer experience. Not having to think about a separate volatile token to top up is one less concept to teach our teammates.
+
+### Friction we hit
+
+1. **Contract addresses are hard to find.** The seller quickstart hardcodes `verifyingContract: "0x..."` with literal ellipses. We had to dig through `docs.arc.network/arc/references/contract-addresses` and the Wallets contract page to assemble the right pair of addresses (USDC + Gateway batched). Putting a worked example with the actual Arc testnet addresses inline in the seller quickstart would have saved us 30 minutes. **Suggestion:** auto-generate the quickstarts per testnet so the addresses are pre-filled.
+
+2. **The relationship between Nanopayments, Gateway, x402, and CCTP isn't crisp from the docs.** A single landing page that says "here's the agent payments stack: x402 is the protocol, Gateway is the unified-balance layer, Nanopayments is what you call the gasless variant, CCTP is for one-shot crosschain moves" — explicitly ranking which one to reach for in which situation — would help every newcomer. We worked it out from blog posts, not docs.
+
+3. **Dynamic pricing forces SDK downgrade.** `gateway.require("$X")` only takes a static string. For our case (price depends on the routed model + token estimate) we had to drop to `BatchFacilitatorClient`, manually construct payment requirements, and base64-decode signatures ourselves. A `gateway.require((req) => quotePrice(req))` callback variant would let us keep the high-level ergonomics. This is the single highest-leverage SDK addition we'd ask for.
+
+4. **The 3-day minimum `validBefore` on EIP-3009 authorizations is correct but undocumented as a footgun.** We discovered it by getting a rejection. A single sentence in the buyer quickstart ("Gateway requires authorizations valid for at least 3 days; the SDK handles this for you, but if you craft signatures manually, set `validBefore >= now + 3 days`") would prevent that hour of debugging.
+
+5. **No batched-settlement explorer view.** When you fire 100 calls, you want one screen that says "those 100 nanopayments aggregated into these 4 on-chain settlement transactions, here are the hashes." Today we have to infer it from the seller wallet's incoming transfers on arcscan. A "Nanopayments dashboard" in the developer console — even read-only — would be a killer demo aid for everyone building on this.
+
+6. **Featherless model availability isn't queryable from the SDK.** We curated 8 models in our catalog by reading the Featherless website, but a programmatic "is this model currently warm and serving?" check would let our router fall back gracefully instead of erroring after payment. (This is more a Featherless ask than Circle, but flagging since our project sits across both.)
+
+### What we'd build next if we win
+
+A two-sided "Featherless model marketplace": specialist providers list their fine-tuned model with a per-call price, the router picks based on quality history + price, and revenue routes via Nanopayments to the model owner's wallet on Arc — all pull-based, settled per inference. The infrastructure to do this exists today; it's just glue code on top of what we built this weekend.

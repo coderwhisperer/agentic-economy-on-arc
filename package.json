@@ -1,0 +1,39 @@
+{
+  "name": "oraclemesh",
+  "version": "0.2.0",
+  "type": "module",
+  "private": true,
+  "description": "Pay-per-inference router on Arc with USDC Nanopayments + Featherless + Gemini",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "server": "tsx --env-file=.env server.ts",
+    "setup": "tsx --env-file=.env setup.ts",
+    "try": "tsx --env-file=.env client.ts",
+    "burst": "tsx --env-file=.env burst.ts",
+    "bench": "tsx --env-file=.env bench.ts",
+    "meter": "tsx --env-file=.env meter.ts",
+    "route": "tsx --env-file=.env router.ts",
+    "deposit": "tsx --env-file=.env deposit.ts",
+    "evidence": "tsx --env-file=.env txs.ts --json > submission-evidence/all-paid-calls.json && tsx --env-file=.env txs.ts"
+  },
+  "dependencies": {
+    "@circle-fin/x402-batching": "^3.0.2",
+    "@google/genai": "^1.0.0",
+    "@x402/core": "^2.2.0",
+    "@x402/evm": "^2.2.0",
+    "@x402/express": "^2.2.0",
+    "@x402/fetch": "^2.2.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "openai": "^4.73.0",
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}
