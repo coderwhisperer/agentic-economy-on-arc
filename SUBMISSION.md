@@ -130,10 +130,10 @@ Stable alternative if tunnels expire: deploy `server.ts` to Vercel / Render / Ra
 1. **Products Used** — Arc, USDC, Circle Gateway, Circle Nanopayments, Developer Console, Dev-Controlled Wallets
 2. **Use Case** — why Circle's stack is the only viable rail for sub-cent per-call settlement
 3. **Successes** — 6 specific things that worked exceptionally well
-4. **Challenges** — 8 numbered, specific friction points with debugging-time costs
-5. **Recommendations** — 8 ranked, concrete asks (each tied to a friction point)
+4. **Challenges** — **14 numbered, specific friction points** with debugging-time costs (each one a real iteration pain point we hit while building)
+5. **Recommendations** — **13 ranked, concrete asks** (each tied to a specific friction point)
 
-Plus a "what we'd build next" coda. Roughly 1500 words; submission-form-ready. The most detailed sections are tied to the $500 Product Feedback Incentive criterion ("most detailed and helpful responses").
+Plus a "what we'd build next" coda. Roughly 2200 words; submission-form-ready. The most detailed sections are tied to the $500 Product Feedback Incentive criterion ("most detailed and helpful responses").
 
 ## Required: Transaction Flow Demonstration (in Video)
 
