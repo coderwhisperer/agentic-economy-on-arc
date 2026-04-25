@@ -16,9 +16,11 @@
     "meter": "tsx --env-file=.env meter.ts",
     "route": "tsx --env-file=.env router.ts",
     "deposit": "tsx --env-file=.env deposit.ts",
+    "dcw-transfer": "tsx --env-file=.env dcw-transfer.ts",
     "evidence": "tsx --env-file=.env txs.ts --json > submission-evidence/all-paid-calls.json && tsx --env-file=.env txs.ts"
   },
   "dependencies": {
+    "@circle-fin/developer-controlled-wallets": "^10.3.0",
     "@circle-fin/x402-batching": "^3.0.2",
     "@google/genai": "^1.0.0",
     "@x402/core": "^2.2.0",
