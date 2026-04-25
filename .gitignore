@@ -30,5 +30,8 @@ Thumbs.db
 .tmp/
 /tmp/
 
+# Persistent dashboard stats (per-machine; not source of truth)
+.stats.json
+
 # Cloudflare tunnel etc.
 cloudflared.log

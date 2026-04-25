@@ -123,13 +123,38 @@ type CallRecord = {
   ok: boolean;
   mode: "flat" | "metered";
 };
-const stats = {
-  totalCalls: 0,
-  successfulCalls: 0,
-  totalUsdc: 0,
-  byModel: {} as Record<string, { calls: number; usdc: number }>,
-  recent: [] as CallRecord[],
-};
+// Stats persist to disk so the dashboard counter survives server restarts.
+// File is gitignored (./.stats.json). Writes are debounced to once per 750ms
+// so a hot burst of paid calls doesn't generate an FS write per call.
+import { readFileSync, writeFile } from "fs";
+const STATS_FILE = "./.stats.json";
+
+const stats = (() => {
+  const empty = {
+    totalCalls: 0,
+    successfulCalls: 0,
+    totalUsdc: 0,
+    byModel: {} as Record<string, { calls: number; usdc: number }>,
+    recent: [] as CallRecord[],
+  };
+  try {
+    const loaded = JSON.parse(readFileSync(STATS_FILE, "utf-8"));
+    console.log(`[stats] loaded ${loaded.totalCalls ?? 0} prior calls from ${STATS_FILE}`);
+    return { ...empty, ...loaded };
+  } catch {
+    return empty;
+  }
+})();
+
+let persistTimer: NodeJS.Timeout | null = null;
+function persistStats() {
+  if (persistTimer) return;
+  persistTimer = setTimeout(() => {
+    persistTimer = null;
+    writeFile(STATS_FILE, JSON.stringify(stats), () => {});
+  }, 750);
+}
+
 function recordCall(r: CallRecord) {
   stats.totalCalls++;
   if (r.ok) { stats.successfulCalls++; stats.totalUsdc += r.priceUsd; }
@@ -138,6 +163,7 @@ function recordCall(r: CallRecord) {
   if (r.ok) stats.byModel[r.model].usdc += r.priceUsd;
   stats.recent.unshift(r);
   stats.recent = stats.recent.slice(0, 30);
+  persistStats();
 }
 
 // ─── App ──────────────────────────────────────────────────────────────────
