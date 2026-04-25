@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>OracleMesh — the slide that wins</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c0e10;
+      --bg-2: #14181c;
+      --line: #2a2f36;
+      --ink: #e8e8e3;
+      --dim: #8a8f96;
+      --amber: #d6a256;
+      --good: #6ec18f;
+      --bad: #d9685f;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: clamp(14px, 1.6vw, 22px);
+      line-height: 1.5;
+    }
+    .slide {
+      width: 100%;
+      min-height: 100vh;
+      padding: clamp(32px, 5vw, 80px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 56px;
+    }
+    .brand {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-size: clamp(28px, 3.5vw, 48px);
+      font-weight: 400;
+    }
+    .brand em { color: var(--amber); font-style: italic; }
+    .meta {
+      color: var(--dim);
+      font-size: 0.7em;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-family: 'Fraunces', serif;
+      font-weight: 400;
+      font-size: clamp(36px, 5vw, 72px);
+      line-height: 1.05;
+      max-width: 22ch;
+      margin-bottom: 12px;
+    }
+    h1 em { color: var(--amber); font-style: italic; }
+    .sub {
+      color: var(--dim);
+      font-size: 0.9em;
+      margin-bottom: clamp(40px, 5vh, 64px);
+      max-width: 70ch;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: clamp(16px, 1.7vw, 26px);
+    }
+    th, td {
+      padding: 22px 18px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+    thead th {
+      color: var(--dim);
+      font-size: 0.55em;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-weight: 400;
+      border-bottom: 1px dashed var(--line);
+    }
+    tbody td:first-child { font-weight: 600; }
+    .num { font-variant-numeric: tabular-nums; text-align: right; }
+    .red   { color: var(--bad);  font-weight: 600; }
+    .green { color: var(--good); font-weight: 600; }
+    .row-winner { background: linear-gradient(90deg, transparent, rgba(214, 162, 86, 0.07)); }
+    .row-winner td:first-child { color: var(--amber); }
+    .check, .x {
+      display: inline-block;
+      margin-left: 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .check { color: var(--good); }
+    .x { color: var(--bad); }
+    .footnote {
+      margin-top: clamp(36px, 5vh, 56px);
+      padding-top: 24px;
+      border-top: 1px dashed var(--line);
+      color: var(--dim);
+      font-size: 0.78em;
+      max-width: 80ch;
+    }
+    .footnote em { font-style: italic; color: var(--ink); }
+    .punchline {
+      margin-top: clamp(28px, 4vh, 40px);
+      font-family: 'Fraunces', serif;
+      font-size: clamp(20px, 2.4vw, 32px);
+      font-style: italic;
+      color: var(--ink);
+      max-width: 38ch;
+      line-height: 1.3;
+    }
+  </style>
+</head>
+<body>
+  <section class="slide">
+    <header>
+      <div class="brand">Oracle<em>Mesh.</em></div>
+      <div class="meta">— per-call economics · arc testnet</div>
+    </header>
+
+    <h1>Same <em>$0.003</em> inference. Three ways to settle it.</h1>
+    <div class="sub">Showing per-transaction unit economics for a sub-cent LLM inference. Buyer pays $0.003. Question: what does the seller actually keep?</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Rail</th>
+          <th class="num">Buyer gas</th>
+          <th class="num">Processor take</th>
+          <th class="num">Net to seller</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Card processor (Stripe)</td>
+          <td class="num">—</td>
+          <td class="num">$0.30 + 2.9%</td>
+          <td class="num red">−$0.297 <span class="x">✗</span></td>
+        </tr>
+        <tr>
+          <td>USDC on Ethereum L1, per&#8209;call</td>
+          <td class="num">$0.20+</td>
+          <td class="num">—</td>
+          <td class="num red">−$0.197 <span class="x">✗</span></td>
+        </tr>
+        <tr class="row-winner">
+          <td>USDC on Arc + Circle Nanopayments</td>
+          <td class="num">$0.00 <span style="color:var(--dim);font-size:0.7em">(gasless)</span></td>
+          <td class="num">—</td>
+          <td class="num green">+$0.0029 <span class="check">✓</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="punchline">Without Circle's batched Nanopayments, this product is mathematically impossible. With it, it's a real business.</div>
+
+    <div class="footnote">
+      <em>Methodology:</em> Stripe figure uses public per-tx fee schedule ($0.30 + 2.9% of $0.003). L1 figure uses a representative ERC-20 transfer cost on mainnet at typical gas prices (~$0.20). Arc figure uses our actually-measured net per call on testnet — the buyer signs an EIP-3009 authorization (no gas), Circle's facilitator batches and submits the on-chain settle tx (gas paid by Circle, amortized across many payments), so the seller receives the full quoted amount.
+    </div>
+  </section>
+</body>
+</html>
