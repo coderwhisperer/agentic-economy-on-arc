@@ -33,6 +33,7 @@
     "viem": "^2.21.0"
   },
   "devDependencies": {
+    "@marp-team/marp-cli": "^4.3.1",
     "@types/express": "^4.17.21",
     "@types/node": "^20.14.0",
     "tsx": "^4.19.0",
