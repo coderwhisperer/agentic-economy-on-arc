@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="cover.png" alt="OracleMesh — specialist LLMs · sub-cent USDC · machine-payable on Arc" width="720" />
+</p>
+
 # OracleMesh
 
 > A pay-per-inference router that sends each task to the cheapest specialized

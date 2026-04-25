@@ -53,7 +53,9 @@ Circle Arc · USDC · Circle Nanopayments · Circle Gateway · x402 · EIP-3009 
 
 ## Cover Image
 
-Use the prompt below to generate a logo / cover. Final asset target: **1280×720**, dark background, amber accent.
+**Final asset shipped: [`cover.png`](cover.png)** — generated from the prompt below. Upload this file directly to the lablab submission form's Cover Image field.
+
+Reference for re-generating or producing a square / avatar variant:
 
 ### Prompt for an image-gen model (GPT/Midjourney/DALL-E)
 
