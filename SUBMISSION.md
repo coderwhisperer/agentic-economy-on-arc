@@ -125,11 +125,15 @@ Stable alternative if tunnels expire: deploy `server.ts` to Vercel / Render / Ra
 
 ## Circle Product Feedback (required field)
 
-Paste content directly from [`PITCH.md`](PITCH.md) § "Circle Product Feedback (for the $500 incentive)". Sections:
-- Which Circle products you used
-- What worked exceptionally well
-- Friction we hit (7 numbered items)
-- What we'd build next if we win
+**Paste from [`FEEDBACK.md`](FEEDBACK.md)** — the consolidated response is structured to Circle's exact 5 sub-prompts:
+
+1. **Products Used** — Arc, USDC, Circle Gateway, Circle Nanopayments, Developer Console, Dev-Controlled Wallets
+2. **Use Case** — why Circle's stack is the only viable rail for sub-cent per-call settlement
+3. **Successes** — 6 specific things that worked exceptionally well
+4. **Challenges** — 8 numbered, specific friction points with debugging-time costs
+5. **Recommendations** — 8 ranked, concrete asks (each tied to a friction point)
+
+Plus a "what we'd build next" coda. Roughly 1500 words; submission-form-ready. The most detailed sections are tied to the $500 Product Feedback Incentive criterion ("most detailed and helpful responses").
 
 ## Required: Transaction Flow Demonstration (in Video)
 

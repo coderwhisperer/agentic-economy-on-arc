@@ -39,40 +39,12 @@ Three required views per Circle support guidance: **Circle Developer Console →
 
 ## Circle Product Feedback (for the $500 incentive)
 
-> Below is feedback structured as Circle asked: detailed, builder-perspective, specific to what we hit while building.
+The full consolidated response — structured to Circle's exact 5 sub-prompts (Products Used / Use Case / Successes / Challenges / Recommendations) — lives in the dedicated [`FEEDBACK.md`](FEEDBACK.md) file in this repo. That's the artifact to copy-paste into the lablab submission form's "Circle Product Feedback" field.
 
-### Which Circle products we used
+Brief preview of what's in there:
 
-- **Arc Testnet** — settlement L1
-- **USDC** — both as the asset *and* as Arc's native gas token (this design choice is quietly transformative)
-- **Circle Gateway** (`@circle-fin/x402-batching`) — the entire payment rail, both `createGatewayMiddleware` on the server side and `GatewayClient` on the buyer side
-- **Circle Developer Console** — DC Wallet management (the seller wallet for OracleMesh is a DC Wallet from our prior `nanopay-api` build)
-- **Circle Nanopayments** — the gasless, sub-cent variant of Gateway, which is what makes this product economically viable
-
-### What worked exceptionally well
-
-The `@circle-fin/x402-batching` SDK is the single best piece of payments tooling we've ever integrated. Going from "I have an Express endpoint" to "this endpoint is gated behind a per-request USDC payment" is genuinely one line: `gateway.require("$0.01")`. That's the right level of abstraction. It hides the EIP-3009 signature dance, the facilitator round-trip, the network ID juggling — but doesn't hide the *concept*, so when we needed dynamic per-request pricing (our router decides the price after seeing the task), dropping down to `BatchFacilitatorClient.settle()` directly was a 15-minute change. Two-tier API design done right.
-
-The Arc testnet faucet → Gateway deposit → first paid call loop took us about 40 minutes from a cold start. By blockchain standards that's miraculous.
-
-USDC-as-gas is a quietly transformative design choice for developer experience. Not having to think about a separate volatile token to top up is one less concept to teach our teammates.
-
-### Friction we hit
-
-1. **Contract addresses are hard to find.** The seller quickstart hardcodes `verifyingContract: "0x..."` with literal ellipses. We had to dig through `docs.arc.network/arc/references/contract-addresses` and the Wallets contract page to assemble the right pair of addresses (USDC + Gateway batched). Putting a worked example with the actual Arc testnet addresses inline in the seller quickstart would have saved us 30 minutes. **Suggestion:** auto-generate the quickstarts per testnet so the addresses are pre-filled.
-
-2. **The relationship between Nanopayments, Gateway, x402, and CCTP isn't crisp from the docs.** A single landing page that says "here's the agent payments stack: x402 is the protocol, Gateway is the unified-balance layer, Nanopayments is what you call the gasless variant, CCTP is for one-shot crosschain moves" — explicitly ranking which one to reach for in which situation — would help every newcomer. We worked it out from blog posts, not docs.
-
-3. **Dynamic pricing forces SDK downgrade.** `gateway.require("$X")` only takes a static string. For our case (price depends on the routed model + token estimate) we had to drop to `BatchFacilitatorClient`, manually construct payment requirements, and base64-decode signatures ourselves. A `gateway.require((req) => quotePrice(req))` callback variant would let us keep the high-level ergonomics. This is the single highest-leverage SDK addition we'd ask for.
-
-4. **The 3-day minimum `validBefore` on EIP-3009 authorizations is correct but undocumented as a footgun.** We discovered it by getting a rejection. A single sentence in the buyer quickstart ("Gateway requires authorizations valid for at least 3 days; the SDK handles this for you, but if you craft signatures manually, set `validBefore >= now + 3 days`") would prevent that hour of debugging.
-
-5. **No batched-settlement explorer view.** When you fire 100 calls, you want one screen that says "those 100 nanopayments aggregated into these 4 on-chain settlement transactions, here are the hashes." Today we have to infer it from the seller wallet's incoming transfers on arcscan. We worked around this by writing `txs.ts` (in this repo) which queries `GatewayClient.searchTransfers()` and dumps every paid call as JSON — see [`submission-evidence/all-paid-calls.json`](submission-evidence/all-paid-calls.json) (362 entries) for the artifact. But doing this client-side is wrong; the right place is the Circle developer console, ideally one click away from the buyer/seller wallet pages. Bonus ask: expose the on-chain `transactionHash` of the parent batch on each transfer record — today the API tells us a transfer is `completed` but not which on-chain settle tx delivered it. A "Nanopayments dashboard" — even read-only — would be a killer demo aid for everyone building on this.
-
-6. **DC Wallets in Console are read-only for transfers.** The Console shows DC wallets, balances, and transactions tab beautifully — but there's no "Send" button to initiate a transfer from the UI. For demos that need a fresh Console-initiated transaction, you have to drop to the `@circle-fin/developer-controlled-wallets` SDK. Adding even a very simple "Send USDC" button on the wallet detail page (with the existing API call wired behind it) would close a real gap for demoware and small-team workflows.
-
-7. **Featherless model availability isn't queryable from the SDK.** We curated 8 models in our catalog by reading the Featherless website, but a programmatic "is this model currently warm and serving?" check would let our router fall back gracefully instead of erroring after payment. (This is more a Featherless ask than Circle, but flagging since our project sits across both.)
-
-### What we'd build next if we win
-
-A two-sided "Featherless model marketplace": specialist providers list their fine-tuned model with a per-call price, the router picks based on quality history + price, and revenue routes via Nanopayments to the model owner's wallet on Arc — all pull-based, settled per inference. The infrastructure to do this exists today; it's just glue code on top of what we built this weekend.
+- **Products Used:** Arc Testnet, USDC, Circle Gateway (`@circle-fin/x402-batching`), Circle Nanopayments, Developer Console, Dev-Controlled Wallets (`@circle-fin/developer-controlled-wallets`)
+- **Use Case:** sub-cent per-call settlement is the only economic path for pay-per-inference at this scale; Circle's batched x402 is the only production rail that makes it viable
+- **6 specific successes**, including the one-line `gateway.require("$0.01")` ergonomics, USDC-as-gas, and `searchTransfers()` paying off for our submission evidence
+- **8 numbered challenges** with debugging-time costs (contract addresses, conceptual map missing, dynamic pricing forces SDK downgrade, undocumented `validBefore` minimum, no batched-settlement explorer view, DC Wallets read-only, signature-domain mismatch error message, the "Gateway Wallet" name collision)
+- **8 ranked recommendations** — each one tied directly to a friction point. Top ask: a callback variant `gateway.require((req) => price)` for dynamic pricing. Second: expose `transactionHash` on transfer records.
