@@ -81,16 +81,18 @@ Three shelf cards = three different specialists, three different per-call prices
 
 ## Slide 8 — On-chain evidence (Arc Testnet)
 
-| Metric | Value |
+Both Circle hard requirements satisfied — derived directly from on-chain Circle records:
+
+| Requirement | Result |
 |---|---|
-| Paid inferences settled (status=completed) | **362** |
-| Total USDC moved buyer → seller | **$3.108978** |
+| **50+ on-chain transactions** | ✅ **400+ settled** (auditable via `npm run evidence`) |
+| **Per-action pricing ≤ $0.01** | ✅ **100.0%** under $0.01 · max **$0.009500** · mean **$0.008668** |
+| Total USDC moved buyer → seller | ~$3.6 USDC |
 | Buyer wallet | `0x3aA8…575d` |
 | Seller wallet | `0x6bdb…b270` |
 | Sample on-chain Gateway deposit tx | `0x8a1ef1ec…` |
-| Re-derive yourself | `npm run evidence` |
 
-> *7× over the Circle 50-tx requirement. JSON + arcscan links in the repo.*
+> *Numbers continually growing; re-derive any time with `npm run evidence`. 8× over the Circle 50-tx threshold.*
 
 ---
 
@@ -143,7 +145,7 @@ Three concrete improvements we'd ship:
 
 GitHub: `[YOUR-USERNAME]/oraclemesh`
 Live demo: `[YOUR-CLOUDFLARE-OR-VERCEL-URL]`
-On-chain proof: 362 settled inferences on Arc Testnet
+On-chain proof: 400+ settled inferences on Arc Testnet (100% under $0.01)
 Built on: Circle Arc + USDC + Gateway Nanopayments + Featherless + Gemini
 
 > *5 seconds. Tagline + URLs.*

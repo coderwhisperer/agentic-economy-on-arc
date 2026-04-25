@@ -133,16 +133,16 @@ A chat panel below uses the metered endpoint for per-prompt dynamic pricing.
 
 ## On-chain evidence (Arc Testnet)
 
-| Metric | Value |
-|---|---|
-| Paid inferences settled (Circle `status=completed`) | **362** |
-| Total USDC moved buyer → seller | **$3.108978** |
-| Buyer wallet | `0x3aA8…575d` |
-| Seller wallet | `0x6bdb…b270` |
-| Sample on-chain Gateway deposit tx | `0x8a1ef1ec…` |
-| Re-derive yourself | `npm run evidence` |
+Both Circle hard requirements satisfied — derived from `GatewayClient.searchTransfers()`:
 
-7× over the Circle 50-tx requirement. JSON + arcscan links shipped in the repo.
+| Requirement | Result |
+|---|---|
+| **50+ on-chain transactions** | ✅ **400+ settled** (continually growing) |
+| **Per-action pricing ≤ $0.01** | ✅ **100.0%** ≤ $0.01 · max **$0.009500** · mean **$0.008668** |
+| Total USDC moved | ~$3.6 |
+| Buyer / Seller / Sample tx | `0x3aA8…575d` / `0x6bdb…b270` / `0x8a1ef1ec…` |
+
+Re-derive any time with `npm run evidence`. 8× over the Circle 50-tx threshold.
 
 ---
 

@@ -624,41 +624,34 @@ section.lead h1 { font-size: 88px; }
 footer { color: #8a8f96; font-size: 14px; }
 ;color:#e8e8e3;background-color:#0c0e10;background-image:none;" data-marpit-pagination-total="12" data-size="16:9">
 <h2 id="on-chain-evidence-arc-testnet">On-chain evidence (Arc Testnet)</h2>
+<p>Both Circle hard requirements satisfied — derived from <code>GatewayClient.searchTransfers()</code>:</p>
 <table>
 <thead>
 <tr>
-<th>Metric</th>
-<th>Value</th>
+<th>Requirement</th>
+<th>Result</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Paid inferences settled (Circle <code>status=completed</code>)</td>
-<td><strong>362</strong></td>
+<td><strong>50+ on-chain transactions</strong></td>
+<td><img class="emoji" draggable="false" alt="✅" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.2/assets/svg/2705.svg" data-marp-twemoji=""/> <strong>400+ settled</strong> (continually growing)</td>
 </tr>
 <tr>
-<td>Total USDC moved buyer → seller</td>
-<td><strong>$3.108978</strong></td>
+<td><strong>Per-action pricing ≤ $0.01</strong></td>
+<td><img class="emoji" draggable="false" alt="✅" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.2/assets/svg/2705.svg" data-marp-twemoji=""/> <strong>100.0%</strong> ≤ $0.01 · max <strong>$0.009500</strong> · mean <strong>$0.008668</strong></td>
 </tr>
 <tr>
-<td>Buyer wallet</td>
-<td><code>0x3aA8…575d</code></td>
+<td>Total USDC moved</td>
+<td>~$3.6</td>
 </tr>
 <tr>
-<td>Seller wallet</td>
-<td><code>0x6bdb…b270</code></td>
-</tr>
-<tr>
-<td>Sample on-chain Gateway deposit tx</td>
-<td><code>0x8a1ef1ec…</code></td>
-</tr>
-<tr>
-<td>Re-derive yourself</td>
-<td><code>npm run evidence</code></td>
+<td>Buyer / Seller / Sample tx</td>
+<td><code>0x3aA8…575d</code> / <code>0x6bdb…b270</code> / <code>0x8a1ef1ec…</code></td>
 </tr>
 </tbody>
 </table>
-<p>7× over the Circle 50-tx requirement. JSON + arcscan links shipped in the repo.</p>
+<p>Re-derive any time with <code>npm run evidence</code>. 8× over the Circle 50-tx threshold.</p>
 <footer>OracleMesh · pay-per-inference on Arc · Circle Nanopayments</footer>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="9" data-class="invert" data-paginate="true" data-background-color="#0c0e10" data-color="#e8e8e3" data-footer="OracleMesh · pay-per-inference on Arc · Circle Nanopayments" data-theme="default" data-style="section {

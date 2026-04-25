@@ -30,7 +30,7 @@ We chose the Developer Console + DC Wallets for the demo evidence trail (so judg
 - **Faucet → Gateway deposit → first paid call took ~40 minutes from a cold start.** By blockchain standards that's miraculous.
 - **USDC-as-gas is a quietly transformative DX choice.** Not having to think about a separate volatile token to top up is one less concept to teach our teammates.
 - **`@circle-fin/x402-batching`'s peer-dep design** (it builds on top of canonical `@x402/core` and `@x402/evm`) made it possible to use the standard `x402Client` / `x402ResourceServer` patterns from the Coinbase SDK while substituting Circle's batched scheme — a clean composition.
-- **`GatewayClient.searchTransfers()` saved the submission.** When we needed to enumerate every paid call for our submission evidence, this API returned all 362 with status, amount, and timestamp in one paginated call. We dumped it as `submission-evidence/all-paid-calls.json` in the repo.
+- **`GatewayClient.searchTransfers()` saved the submission.** When we needed to enumerate every paid call for our submission evidence, this API returned all 400+ entries with status, amount, and timestamp in one paginated call. We dumped it as `submission-evidence/all-paid-calls.json` in the repo, and audit it on every regenerate to confirm 100% of charges stayed under the $0.01 hackathon ceiling.
 - **`@circle-fin/developer-controlled-wallets` SDK created a real on-chain transfer in <5 seconds end-to-end.** Entity-secret encryption is handled internally; we just called `client.createTransaction({...})` and got a tx hash back after a single 4s poll. Excellent ergonomics.
 
 ## Challenges — what we hit while building

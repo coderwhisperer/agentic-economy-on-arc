@@ -52,6 +52,40 @@ const RAW = process.argv.includes("--json");
   console.log(`\nTotal USDC moved (atomic): ${totalAmount}`);
   console.log(`Total USDC moved (formatted): ${(Number(totalAmount) / 1e6).toFixed(6)} USDC`);
 
+  // ─── Per-action pricing audit (Circle hackathon ≤ $0.01 requirement) ─
+  // Derived directly from on-chain transfer data — every entry below is a
+  // settled USDC transfer recorded by Circle's batched x402 facilitator.
+  const CEILING_USD = 0.01;
+  const ceilingAtomic = BigInt(CEILING_USD * 1e6);  // 10000
+  const amountsAtomic = all.map(t => BigInt(t.amount ?? "0")).filter(a => a > 0n);
+  const underCeiling = amountsAtomic.filter(a => a <= ceilingAtomic).length;
+  const overCeiling = amountsAtomic.filter(a => a > ceilingAtomic).length;
+  const maxAtomic = amountsAtomic.reduce((m, a) => a > m ? a : m, 0n);
+  const minAtomic = amountsAtomic.reduce((m, a) => a < m ? a : m, amountsAtomic[0] ?? 0n);
+  const meanAtomic = amountsAtomic.length
+    ? amountsAtomic.reduce((s, a) => s + a, 0n) / BigInt(amountsAtomic.length)
+    : 0n;
+  // Bucket distribution to show price diversity
+  const buckets = { "≤$0.001": 0, "$0.001–$0.005": 0, "$0.005–$0.0095": 0, "$0.0095": 0, ">$0.01": 0 };
+  for (const a of amountsAtomic) {
+    if (a > ceilingAtomic) buckets[">$0.01"]++;
+    else if (a >= 9499n && a <= 9501n) buckets["$0.0095"]++;       // the flat-ceiling /infer calls
+    else if (a >= 5000n) buckets["$0.005–$0.0095"]++;
+    else if (a >= 1000n) buckets["$0.001–$0.005"]++;
+    else buckets["≤$0.001"]++;
+  }
+
+  console.log(`\nPER-ACTION PRICING AUDIT (Circle hackathon: per-action ≤ $0.01):`);
+  console.log(`  Transfers ≤ $0.01:  ${underCeiling}/${amountsAtomic.length}  (${(100 * underCeiling / amountsAtomic.length).toFixed(1)}%)`);
+  console.log(`  Transfers >  $0.01: ${overCeiling}/${amountsAtomic.length}`);
+  console.log(`  Max charge:  $${(Number(maxAtomic) / 1e6).toFixed(6)}`);
+  console.log(`  Mean charge: $${(Number(meanAtomic) / 1e6).toFixed(6)}`);
+  console.log(`  Min charge:  $${(Number(minAtomic) / 1e6).toFixed(6)}`);
+  console.log(`  Distribution:`);
+  for (const [b, n] of Object.entries(buckets)) {
+    if (n > 0) console.log(`    ${String(n).padStart(4)}  ${b}`);
+  }
+
   console.log(`\nDistinct on-chain settlement txs (${onChainTxs.size}):`);
   for (const h of onChainTxs) {
     console.log(`  https://testnet.arcscan.app/tx/${h}`);

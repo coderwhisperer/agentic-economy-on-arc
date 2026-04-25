@@ -13,7 +13,7 @@ OracleMesh
 ## Short Description (≤ 250 characters)
 
 ```
-Pay-per-inference router on Circle Arc Testnet. Gemini classifies each prompt; the cheapest specialist model on Featherless answers it; the buyer pays sub-cent USDC via Circle's batched x402. 362 settlements on-chain. Specialist LLMs, machine-payable.
+Pay-per-inference router on Circle Arc Testnet. Gemini classifies each prompt; the cheapest specialist on Featherless answers it; the buyer pays sub-cent USDC via Circle's batched x402. 400+ settlements on-chain, every one under $0.01. Specialist LLMs, machine-payable.
 ```
 
 (247 chars including spaces.)
@@ -23,7 +23,7 @@ Pay-per-inference router on Circle Arc Testnet. Gemini classifies each prompt; t
 ```
 OracleMesh is a pay-per-answer API for LLM inference. Send a prompt; Gemini 3 Flash classifies it via function-calling and routes it to the cheapest open-source specialist on Featherless that can answer well — OpenBioLLM for clinical questions, Saul for legal, Suzume for translation, Qwen Coder for code, and so on. The result returns to the caller; payment is settled in sub-cent USDC on Arc Testnet via Circle's batched x402 facilitator. No subscription, no credits, no minimums — every call is an atomic financial transaction.
 
-Per-call pricing under one cent breaks every traditional rail. Stripe takes $0.30 per transaction; an ERC-20 transfer on Ethereum L1 costs $0.20+ in gas. The same $0.003 inference would lose the seller money on either rail. On Arc + Circle Nanopayments, buyer-side gas is effectively zero (USDC is the native asset, authorizations are batched off-chain and settled in bulk on-chain), so the seller nets the full revenue. We've completed 362 paid inferences on Arc Testnet during the build, all auditable via Circle's transfer-search API and reproducible with `npm run evidence`. That's 7× over the hackathon's 50-tx threshold.
+Per-call pricing under one cent breaks every traditional rail. Stripe takes $0.30 per transaction; an ERC-20 transfer on Ethereum L1 costs $0.20+ in gas. The same $0.003 inference would lose the seller money on either rail. On Arc + Circle Nanopayments, buyer-side gas is effectively zero (USDC is the native asset, authorizations are batched off-chain and settled in bulk on-chain), so the seller nets the full revenue. We've completed 400+ paid inferences on Arc Testnet during the build (max single charge $0.0095, mean $0.0086, **100.0% under the $0.01 ceiling**) — all auditable via Circle's transfer-search API and reproducible with `npm run evidence`. That's 8× over the hackathon's 50-tx threshold.
 
 Two endpoints, two pricing models, three Circle tracks. `/infer` is flat-priced ($0.0095 ceiling) for the Per-API Monetization track. `/infer/metered` quotes a per-call dynamic price from the routed model + estimated tokens for the Usage-Based Compute Billing track. A small marketplace UI (browser → server-held wallet → x402 settle → answer renders) covers the Real-Time Micro-Commerce track. Routing diversity (6+ specialists invoked across a 100-call burst) covers the Featherless Specialized Routing track. Strict-schema function calling in `router.ts` covers the Gemini Function Calling track. The submission also pushes substantive product feedback for the Circle Product Feedback Incentive ($500), including a working prototype (`txs.ts`) for the missing batched-settlement explorer view we wanted Circle to ship.
 ```

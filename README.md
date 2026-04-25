@@ -6,17 +6,21 @@
 
 ## On-chain evidence (Arc Testnet)
 
-| Metric | Value |
-|---|---|
-| Paid inferences settled (Circle `status=completed`) | **362** |
-| Total USDC moved buyer → seller | **$3.108978** |
-| Buyer wallet | [`0x3aA8…575d`](https://testnet.arcscan.app/address/0x3aA8aAD4A9EB432a681B026f59D6BbD10641575d) |
-| Seller wallet | [`0x6bdb…b270`](https://testnet.arcscan.app/address/0x6bdb75a49ece3e810ad2fb194da461154c2fb270) |
-| Sample on-chain Gateway deposit tx | [`0x8a1ef1ec…`](https://testnet.arcscan.app/tx/0x8a1ef1ecc6ef63ec6e1b7d40dc7ec982f9e7ea50b6236139c19bc639839fe63e) |
-| Full transfer log (re-derivable from Circle API) | [`submission-evidence/all-paid-calls.json`](submission-evidence/all-paid-calls.json) |
-| Re-derive yourself: | `npm run evidence` |
+Both Circle hackathon hard requirements satisfied — derived directly from on-chain settlement records via `GatewayClient.searchTransfers()`:
 
-7× over the Circle 50-tx requirement. Every transfer auditable via Circle's transfer-search API; the JSON is just a friendlier dump.
+| Requirement | Status | Evidence |
+|---|---|---|
+| **50+ on-chain transactions** | ✅ **400+ settled** (continually growing) | [`submission-evidence/all-paid-calls.json`](submission-evidence/all-paid-calls.json) — every transfer with status, amount, timestamp |
+| **Per-action pricing ≤ $0.01** | ✅ **100.0% of transfers under $0.01** · max **$0.009500** · mean **$0.008668** · min **$0.000213** | Same JSON; audited automatically by `npm run evidence` |
+| **Margin explanation** | ✅ in the [economic proof](#the-economic-proof-the-slide-that-wins) section below + `slides/margin.html` for the demo | — |
+
+| Wallet | Address |
+|---|---|
+| Buyer | [`0x3aA8…575d`](https://testnet.arcscan.app/address/0x3aA8aAD4A9EB432a681B026f59D6BbD10641575d) |
+| Seller | [`0x6bdb…b270`](https://testnet.arcscan.app/address/0x6bdb75a49ece3e810ad2fb194da461154c2fb270) |
+| Sample on-chain Gateway deposit | [`0x8a1ef1ec…`](https://testnet.arcscan.app/tx/0x8a1ef1ecc6ef63ec6e1b7d40dc7ec982f9e7ea50b6236139c19bc639839fe63e) |
+
+**Refresh the JSON + audit anytime**: `npm run evidence`. Every claim above is re-derivable from Circle's transfer-search API in <2 seconds. 8× over the Circle 50-tx threshold and growing.
 
 **Prize pools this project competes in**
 - 🪙 Circle — **Per-API Monetization Engine** (primary)
